@@ -1,0 +1,10 @@
+
+- create development namespace
+kubectl apply -f quote.yaml
+
+- Get pods in development namespace
+kubectl get pods -n development
+
+NAME                                   READY   STATUS    RESTARTS   AGE
+quote-service-7d66bbb4cf-59h4z         1/1     Running   0          29s
+quote-service-7d66bbb4cf-lpnsg         1/1     Running   0          29s
