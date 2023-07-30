@@ -403,3 +403,4 @@ src/.DS_Store
 
 # except files
 etc/*.zip
+etc/Ex*

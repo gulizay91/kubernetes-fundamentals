@@ -17,6 +17,8 @@ A Pod is a Kubernetes abstraction that represents a group of one or more applica
 A Pod always runs on a Node. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Each Node is managed by the control plane. A Node can have multiple pods, and the Kubernetes control plane automatically handles scheduling the pods across the Nodes in the cluster. 
 
 
+![Screenshot](https://github.com/gulizay91/kubernetes-fundamentals/blob/main/etc/kubernetes-architecture.png?raw=true)
+
 ## Install minikube on macos
 
 ```sh
@@ -26,13 +28,19 @@ minikube start
 
 ### Usefull Commands
 ```sh
+minikube start
+minikube dashboard
+minikube delete
+minikube tunnel
 kubectl cluster-info
+kubectl apply -f <yamlFile/>
+kubectl delete -f <yamlFile/>
 kubectl get nodes
 kubectl get namespace = kubectl get ns
 kubectl get services -A
 kubectl get nodes -A
-kubectl describe pod <podName>
-kubectl delete pod <podName>
+kubectl describe pod <podName/>
+kubectl delete pod <podName/>
 ```
 
 ### Creating namespace
@@ -76,7 +84,7 @@ spec:
     spec:
       containers:
       - name: pod-info-container
-        image: guliz91/demoworkerservice:latest
+        image: kimschles/pod-info-app:latest
         ports:
         - containerPort: 3000
         env:
@@ -271,3 +279,104 @@ kubectl apply -f quote.yaml
 ```sh
 kubectl get pods -n development
 ```
+
+- Delete quote
+```sh
+kubectl apply -f quote.yaml
+```
+
+
+## Exercise - 4
+
+- rabbitmq-service on minikube
+  * namespace is development
+  * servis name is 'rabbitmq-service'
+  * service cluster port 2323 redirect to container port 15672(rabbitmq dashboard)
+  * deployment and app label names are 'rabbitmq-pod'
+  * container-name will be 'rabbitmq-container'
+  * 2 replicas and image is 'rabbitmq:3-management'
+  * set resource(cpu/memory) and env. variables
+
+
+### service.yaml
+```sh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: development
+spec:
+  selector:
+    app: rabbitmq-pod
+  ports:
+    - port: 2323
+      targetPort: 15672
+  type: LoadBalancer
+```
+
+### deployment.yaml
+```sh
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-pod-deployment
+  namespace: development
+  labels:
+    app: rabbitmq-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rabbitmq-pod
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-pod
+    spec:
+      containers:
+      - name: rabbitmq-pod-container
+        image: rabbitmq:3-management
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "240m"
+          limits:
+            memory: "250Mi"
+            cpu: "512m"
+        ports:
+        - containerPort: 15672
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: "admin"
+          - name: RABBITMQ_DEFAULT_PASS
+            value: "admin"
+```
+
+
+- Connect to LoadBalancer service for cluster rabbitmq
+```sh
+minikube tunnel
+```
+
+- Create rabbitmq-service and deployment
+```sh
+kubectl apply -f service.yaml
+kubectl apply -f deployment.yaml
+```
+
+- Get loadbalancer service ips
+```sh
+kubectl get services -n development
+```
+
+- Get pods
+```sh
+kubectl get pods -n development
+```
+
+### Minikube Dashboard
+![Screenshot](https://github.com/gulizay91/kubernetes-fundamentals/blob/main/etc/minikube-dashboard-rabbitmq-service.png?raw=true)
+
+Now you can access rabbitmq dashboard with http://127.0.0.1:2323/

@@ -1,0 +1,14 @@
+
+- Create rabbitmq-service and deployment
+kubectl apply -f service.yaml
+kubectl apply -f deployment.yaml
+
+- Connect to LoadBalancer service for cluster rabbitmq
+minikube tunnel
+
+
+- Get loadbalancer service ips
+kubectl get services -n development
+
+NAME               TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+rabbitmq-service   LoadBalancer   10.100.232.128   127.0.0.1     2323:32049/TCP   8s

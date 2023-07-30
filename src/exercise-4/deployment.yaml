@@ -1,0 +1,35 @@
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-pod-deployment
+  namespace: development
+  labels:
+    app: rabbitmq-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rabbitmq-pod
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-pod
+    spec:
+      containers:
+      - name: rabbitmq-pod-container
+        image: rabbitmq:3-management
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "240m"
+          limits:
+            memory: "250Mi"
+            cpu: "512m"
+        ports:
+        - containerPort: 15672
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: "admin"
+          - name: RABBITMQ_DEFAULT_PASS
+            value: "admin"

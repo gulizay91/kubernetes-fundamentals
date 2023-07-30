@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: development
+spec:
+  selector:
+    app: rabbitmq-pod
+  ports:
+    - port: 2323
+      targetPort: 15672
+  type: LoadBalancer
